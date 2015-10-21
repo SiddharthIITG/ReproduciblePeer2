@@ -1,0 +1,38 @@
+---
+title: "Peer Assessment 2"
+author: "SiddharthIITG"
+date: "21 October 2015"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+
+```{r}
+library("plyr")
+library("dplyr")
+library("tm")
+
+data = read.csv("repdata-data-StormData.csv.bz2")
+pdf <- readPDF(control = list(c(text = "-layout")))
+pdf <- pdf(elem=list(uri="nws_i10_1605.pdf"),language="en")
+keep = c(pdf$content[seq(397, 420)], pdf$content[seq(425, 448)])
+keep
+```
+
+```{r}
+freq  = count(data, 'EVTYPE')
+freq = arrange(freq, desc(freq))
+freq = freq[1:50,]
+df = merge(data, freq, by = "EVTYPE")
+df = filter(df, FATALITIES != 0 | PROPDMG != 0 | CROPDMG != 0)
+grouping <- group_by(df, EVTYPE)
+sumHealth = summarize(grouping,sumFat = sum(FATALITIES),
+                      sumInj =  sum(INJURIES))
+arrange(sumHealth, desc(sumFat))
+```
+
+```{r}
+head(sumHealth)
+```
